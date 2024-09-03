@@ -6,5 +6,3 @@ OPENAI_TYPE = "azure"
 OPENAI_VERSION = "2023-05-15" 
 GMAIL_USER = "example@gmail.com"
 GMAIL_PASS = "<password>"
-
-
