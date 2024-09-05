@@ -27,13 +27,22 @@ import numpy as np
 from scipy.misc import face
 import face_recognition
 
-## Load images
-Gates_img_bgr = face_recognition.load_image_file(r"C:\Users\ckraft\Desktop\My Experiments\Personal Use\Images\BillGates.jpg")
+# Load the image of Bill Gates in BGR format
+Gates_img_bgr = face_recognition.load_image_file(r"<path>\BillGates.jpg")
+
+# Convert the BGR image to RGB format for accurate color display
 Gates_img_rgb = cv2.cvtColor(Gates_img_bgr, cv2.COLOR_BGR2RGB)
-cv2.imshow('bgr', Gates_img_bgr)
-cv2.imshow('rgb', Gates_img_rgb)
+
+# Display the original BGR image
+cv2.imshow('BGR Image', Gates_img_bgr)
+
+# Display the RGB image
+cv2.imshow('RGB Image', Gates_img_rgb)
+
+# Wait indefinitely for a key press
 cv2.waitKey(0)
 
-## Locate face and draw a box
+# Reload the image of Bill Gates for face detection purposes
+Gates_img = face_recognition.load_image_file(r"<path>\BillGates.jpg")
 
-Gates_img = face_recognition.load_image_file(r"C:\Users\ckraft\Desktop\My Experiments\Personal Use\Images\BillGates.jpg")
+

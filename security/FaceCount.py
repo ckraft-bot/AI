@@ -2,44 +2,50 @@ import cv2
 import numpy as np
 import dlib
 
-#say cheeese, connecting to a camera
+# Connect to the camera
 cap = cv2.VideoCapture(0)
-#get the coordinates
+
+# Initialize the face detector
 detector = dlib.get_frontal_face_detector()
 
-#count the num of faces
+# Start capturing video frames
 while True:
  
-    #capture frame-by-frame
+    # Capture frame-by-frame from the camera
     ret, frame = cap.read()
-    frame = cv2.flip(frame, 1)
+    frame = cv2.flip(frame, 1)  # Flip the frame horizontally
  
-    #operations on the frame come here
+    # Convert the frame to grayscale for face detection
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
  
-    #counter to count number of faces
+    # Initialize face counter
     i = 0
+    
+    # Loop through all detected faces
     for face in faces:
+        # Get coordinates of the face
         x, y = face.left(), face.top()
         x1, y1 = face.right(), face.bottom()
+        
+        # Draw a rectangle around the face
         cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
  
-        #increment the iterartor each time you get the coordinates
-        i = i+1
+        # Increment face counter
+        i += 1
  
-        # Adding face number to the box detecting faces
-        cv2.putText(frame, 'face num'+str(i), (x-10, y-10),
+        # Add face number label to the detected face
+        cv2.putText(frame, 'Face ' + str(i), (x - 10, y - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         print(face, i)
  
-    #Display the resulting frame
-    cv2.imshow('frame', frame)
+    # Display the frame with detected faces
+    cv2.imshow('Frame', frame)
 
-    #ok while this is fun the loop can't go on forever
-    if cv2.waitKey(1) & 0xFF == ord('q'): #just type "Q" on the keyboard
+    # Break the loop if 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Release the camera and close all OpenCV windows
 cap.release()
 cv2.destroyAllWindows()
-
