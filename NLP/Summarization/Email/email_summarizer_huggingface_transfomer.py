@@ -47,8 +47,7 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
     if status != 'OK':  
         return []  
   
-    email_contents = []  
-    senders = []  
+    emails = []  
     for num in response[0].split():  
         status, data = mail.fetch(num, '(RFC822)')  
         if status != 'OK':  
@@ -57,7 +56,6 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
         raw_email = data[0][1]  
         msg = email.message_from_bytes(raw_email)  
         sender = msg['From']  
-        senders.append(sender)  
           
         if msg.is_multipart():  
             for part in msg.walk():  
@@ -66,16 +64,16 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
                 if content_type == "text/plain" and "attachment" not in content_disposition:  
                     charset = part.get_content_charset()  
                     email_text = part.get_payload(decode=True).decode(encoding=charset, errors="ignore")  
-                    email_contents.append(email_text)  
+                    emails.append((email_text, sender))  
         else:  
             content_type = msg.get_content_type()  
             if content_type == "text/plain":  
                 charset = msg.get_content_charset()  
                 email_text = msg.get_payload(decode=True).decode(encoding=charset, errors="ignore")  
-                email_contents.append(email_text)  
+                emails.append((email_text, sender))  
   
     mail.logout()  
-    return email_contents, senders  
+    return emails  
 
 
 # Function to detect emails that require action
@@ -87,10 +85,10 @@ def emphasize_summary(summary):
     return summary
 
 # Function to summarize emails
-def summarize_emails(email_contents, senders):
+def summarize_emails(emails):
     summarizer = pipeline("summarization", model="t5-base") 
     summaries = []
-    for content, sender in zip(email_contents, senders):
+    for content, sender in emails:
         try:
             summary = summarizer(content, max_length=400, min_length=100, do_sample=False)[0]['summary_text']
             emphasized_summary = emphasize_summary(summary)
@@ -132,10 +130,10 @@ def main():
     password = email_pass 
   
     # Fetch and decode unread emails  
-    email_contents, senders = fetch_and_decode_unread_emails(username, password)  
+    emails = fetch_and_decode_unread_emails(username, password)  
       
     # Summarize the emails  
-    summaries = summarize_emails(email_contents, senders)  
+    summaries = summarize_emails(emails)  
     
     # Sort summaries by category
     sorted_summaries = sort_category(summaries)
