@@ -15,7 +15,9 @@ Count unread emails
 ![image](https://github.com/user-attachments/assets/24aef777-d77a-4567-b1e6-4b7d027a1b00)
 
 Unread emails
-![image](https://github.com/user-attachments/assets/e8085ab7-6cd5-4735-9a88-cb04339ea267)
+![unread email 9_12](https://github.com/user-attachments/assets/a6de89a4-fa95-4529-8dcf-94842967931a)
+
+
 
 Summarized email sent to my inbox
-![image](https://github.com/user-attachments/assets/88d8ce0b-132e-4655-8865-da723f52d3ba)
+![sumarized email 9_12](https://github.com/user-attachments/assets/b0fbc2ab-0ece-49f0-bea1-399d22cf0af2)
