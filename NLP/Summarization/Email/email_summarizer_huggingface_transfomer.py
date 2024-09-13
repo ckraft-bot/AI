@@ -80,16 +80,26 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
     return email_contents, senders  
 
 
+# Function to detect calls to action and emphasize specific emails
+def emphasize_summary(summary):
+    call_to_action_keywords = ["sign", "submit", "fill out", "complete", "send over", "attend", "join", "meeting", "schedule", "appointment"]
+    for keyword in call_to_action_keywords:
+        if keyword in summary.lower():
+            return f"<b>{summary}</b>"
+    return summary
+
+
 def summarize_emails(email_contents, senders):
     summarizer = pipeline("summarization")
     summaries = []
     for content, sender in zip(email_contents, senders):
         try:
             summary = summarizer(content, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
-            summaries.append(f"From: {sender}\nSummary: {summary}")
+            emphasized_summary = emphasize_summary(summary)
+            summaries.append(f"From: {sender}<br>Summary: {emphasized_summary}")
         except Exception as e:
             print(f"Error summarizing email from {sender}: {e}")
-            summaries.append(f"From: {sender}\nSummary: Error summarizing this email.")
+            summaries.append(f"From: {sender}<br>Summary: Error summarizing this email.")
     return summaries
 
 # New function to sort summaries by category
@@ -135,7 +145,7 @@ def main():
     # Compile summaries into a single string to include in the email body  
     summary_body = ""
     for category, summaries in sorted_summaries.items():
-        summary_body += f"\n\n{category.upper()}:\n" + "\n\n".join(summaries)
+        summary_body += f"<br><br>{category.upper()}:<br>" + "<br><br>".join(summaries)
       
     # Construct and send the email with the summary  
     message = MIMEMultipart()  
@@ -143,7 +153,7 @@ def main():
     message["To"] = username  
     message["Date"] = formatdate(localtime=True)  
     message["Subject"] = f"Daily Summarizer for {today}"  
-    message.attach(MIMEText(summary_body, 'plain'))  
+    message.attach(MIMEText(summary_body, 'html'))  
     text = message.as_string()  
   
     # Log in to server using secure context and send email  
