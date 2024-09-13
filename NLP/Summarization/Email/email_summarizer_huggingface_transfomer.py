@@ -12,8 +12,6 @@ from email.utils import formatdate
 email_user = config.GMAIL_USER 
 email_pass = config.GMAIL_PASS 
 
-from transformers import pipeline
-
 # Function to count unread emails 
 def count_unread_emails(email_user, email_pass):  
     # Connect to the email server  
@@ -24,12 +22,12 @@ def count_unread_emails(email_user, email_pass):
     # Search for unread emails  
     status, response = mail.search(None, '(UNSEEN)')  
     if status != 'OK':  
-        return "There are 0 unread emails."  # If the status is not OK, return a message indicating 0 unread emails  
+        return "Unable to reach inbox"  
       
     # The response will contain a list of unread email IDs, if any  
     unread_email_ids = response[0].split()  
       
-    mail.logout()  # Logout from the email server  
+    mail.logout() 
       
     # Return a formatted string indicating the count of unread emails  
     return "There are {} unread emails.".format(len(unread_email_ids))  
@@ -49,8 +47,7 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
     if status != 'OK':  
         return []  
   
-    email_contents = []  
-    senders = []  
+    emails = []  
     for num in response[0].split():  
         status, data = mail.fetch(num, '(RFC822)')  
         if status != 'OK':  
@@ -59,7 +56,6 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
         raw_email = data[0][1]  
         msg = email.message_from_bytes(raw_email)  
         sender = msg['From']  
-        senders.append(sender)  
           
         if msg.is_multipart():  
             for part in msg.walk():  
@@ -68,19 +64,19 @@ def fetch_and_decode_unread_emails(email_user, email_pass):
                 if content_type == "text/plain" and "attachment" not in content_disposition:  
                     charset = part.get_content_charset()  
                     email_text = part.get_payload(decode=True).decode(encoding=charset, errors="ignore")  
-                    email_contents.append(email_text)  
+                    emails.append((email_text, sender))  
         else:  
             content_type = msg.get_content_type()  
             if content_type == "text/plain":  
                 charset = msg.get_content_charset()  
                 email_text = msg.get_payload(decode=True).decode(encoding=charset, errors="ignore")  
-                email_contents.append(email_text)  
+                emails.append((email_text, sender))  
   
     mail.logout()  
-    return email_contents, senders  
+    return emails  
 
 
-# Function to detect calls to action and emphasize specific emails
+# Function to detect emails that require action
 def emphasize_summary(summary):
     call_to_action_keywords = ["sign", "submit", "fill out", "complete", "send over", "attend", "join", "meeting", "schedule", "appointment"]
     for keyword in call_to_action_keywords:
@@ -88,13 +84,13 @@ def emphasize_summary(summary):
             return f"<b>{summary}</b>"
     return summary
 
-
-def summarize_emails(email_contents, senders):
-    summarizer = pipeline("summarization")
+# Function to summarize emails
+def summarize_emails(emails):
+    summarizer = pipeline("summarization", model="t5-base") 
     summaries = []
-    for content, sender in zip(email_contents, senders):
+    for content, sender in emails:
         try:
-            summary = summarizer(content, max_length=150, min_length=30, do_sample=False)[0]['summary_text']
+            summary = summarizer(content, max_length=400, min_length=100, do_sample=False)[0]['summary_text']
             emphasized_summary = emphasize_summary(summary)
             summaries.append(f"From: {sender}<br>Summary: {emphasized_summary}")
         except Exception as e:
@@ -102,7 +98,7 @@ def summarize_emails(email_contents, senders):
             summaries.append(f"From: {sender}<br>Summary: Error summarizing this email.")
     return summaries
 
-# New function to sort summaries by category
+# Function to sort summaries by category
 def sort_category(summaries):
     classifier = pipeline("zero-shot-classification")
     """
@@ -134,10 +130,10 @@ def main():
     password = email_pass 
   
     # Fetch and decode unread emails  
-    email_contents, senders = fetch_and_decode_unread_emails(username, password)  
+    emails = fetch_and_decode_unread_emails(username, password)  
       
     # Summarize the emails  
-    summaries = summarize_emails(email_contents, senders)  
+    summaries = summarize_emails(emails)  
     
     # Sort summaries by category
     sorted_summaries = sort_category(summaries)
