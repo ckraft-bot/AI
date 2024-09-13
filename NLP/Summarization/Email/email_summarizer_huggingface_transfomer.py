@@ -101,18 +101,29 @@ def summarize_emails(email_contents, senders):
     return summaries
 
 # Function to sort summaries by category
-def summarize_emails(email_contents, senders):
-    summarizer = pipeline("summarization", model="t5-base")  # Specify your model here
-    summaries = []
-    for content, sender in zip(email_contents, senders):
+def sort_category(summaries):
+    classifier = pipeline("zero-shot-classification")
+    """
+    Vendors: Emails from vendor providers about contract renewals, selling products/services, or relationship management.
+    Team: Emails from team members requesting access to certain systems or submitting their paid time off (PTO) requests.
+    Senior Leadership: Emails from senior leaders about organizational changes, upcoming townhall meetings, or strategic updates.
+    Admin: Emails from HR about new hires, reminder to give feedback on quarterly/annual performance reviews, security policy updates, budgeting plans, or financial reports.
+    System Notifications: Emails about system failures, scheduled maintenance, or software upgrades.
+    Spam/Phishing: Unsolicited emails trying to sell products or services, or phishing attempts to steal sensitive information.
+    """
+    categories = ["vendors", "team", "senior leadership", "admin", "system notification", "spam/phishing"] 
+    sorted_summaries = {category: [] for category in categories}
+    
+    for summary in summaries:
         try:
-            summary = summarizer(content, max_length=400, min_length=100, do_sample=False, temperature=0.3)[0]['summary_text']
-            emphasized_summary = emphasize_summary(summary)
-            summaries.append(f"From: {sender}<br>Summary: {emphasized_summary}")
+            result = classifier(summary, candidate_labels=categories)
+            best_category = result['labels'][0]
+            sorted_summaries[best_category].append(summary)
         except Exception as e:
-            print(f"Error summarizing email from {sender}: {e}")
-            summaries.append(f"From: {sender}<br>Summary: Error summarizing this email.")
-    return summaries
+            print(f"Error classifying summary: {e}")
+            sorted_summaries["uncategorized"].append(summary)
+    
+    return sorted_summaries
 
 # Main code to fetch, summarize, sort, and send the summary via email  
 def main():  
