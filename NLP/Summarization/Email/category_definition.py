@@ -4,5 +4,5 @@ category_descriptions = {
     "senior leadership": "Emails from senior leaders about organizational changes, upcoming townhall meetings, or strategic updates.",
     "admin": "Emails from HR about new hires, reminder to give feedback on quarterly/annual performance reviews, security policy updates, budgeting plans, or financial reports.",
     "system notification": "Emails about system failures, scheduled maintenance, or software upgrades.",
-    "spam/phishing": "Unsolicited emails trying to sell products or services, or phishing attempts to steal sensitive information."
+    "spam/phishing": "Unsolicited emails trying to sell products or services, or phishing attempts to steal sensitive information.",
 }
