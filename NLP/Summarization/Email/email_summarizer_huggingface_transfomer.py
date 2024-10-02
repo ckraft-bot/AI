@@ -101,20 +101,22 @@ def summarize_emails(emails):
 # Function to sort summaries by category
 def sort_category(summaries):
     classifier = pipeline("zero-shot-classification")
-    """
-    Vendors: Emails from vendor providers about contract renewals, selling products/services, or relationship management.
-    Team: Emails from team members requesting access to certain systems or submitting their paid time off (PTO) requests.
-    Senior Leadership: Emails from senior leaders about organizational changes, upcoming townhall meetings, or strategic updates.
-    Admin: Emails from HR about new hires, reminder to give feedback on quarterly/annual performance reviews, security policy updates, budgeting plans, or financial reports.
-    System Notifications: Emails about system failures, scheduled maintenance, or software upgrades.
-    Spam/Phishing: Unsolicited emails trying to sell products or services, or phishing attempts to steal sensitive information.
-    """
-    categories = ["vendors", "team", "senior leadership", "admin", "system notification", "spam/phishing"] 
+    
+    category_descriptions = {
+        "vendors": "Emails from vendor providers about contract renewals, selling products/services, or relationship management.",
+        "team": "Emails from team members requesting access to certain systems or submitting their paid time off (PTO) requests.",
+        "senior leadership": "Emails from senior leaders about organizational changes, upcoming townhall meetings, or strategic updates.",
+        "admin": "Emails from HR about new hires, reminder to give feedback on quarterly/annual performance reviews, security policy updates, budgeting plans, or financial reports.",
+        "system notification": "Emails about system failures, scheduled maintenance, or software upgrades.",
+        "spam/phishing": "Unsolicited emails trying to sell products or services, or phishing attempts to steal sensitive information.",
+    }
+    
+    categories = list(category_descriptions.keys())
     sorted_summaries = {category: [] for category in categories}
     
     for summary in summaries:
         try:
-            result = classifier(summary, candidate_labels=categories)
+            result = classifier(summary, candidate_labels=categories, hypothesis_template="This email is about {}.")
             best_category = result['labels'][0]
             sorted_summaries[best_category].append(summary)
         except Exception as e:
