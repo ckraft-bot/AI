@@ -7,7 +7,7 @@ Audience: C level suite managers
 - Use IMAP to reach my email inbox
 - Verify that the api got through by counting the unread emails
 - Parse unread emails from byes into raw utf8
-- Pass in the raw unread emails into LLM propmpt of your choice
+- Pass in the raw unread emails into LLM prompt of your choice
     - Flag the call to action emails by bolding those details in the summary
     - Sort summaries into categories
     - Ask the LLM of your choice to summarize the emails into short paragrphs or sentences
