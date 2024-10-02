@@ -4,5 +4,6 @@ OPENAI_ENDPOINT = "<endpoint>"
 OPENAI_KEY = "<key>"
 OPENAI_TYPE = "azure"
 OPENAI_VERSION = "2023-05-15" 
-GMAIL_USER = "my_gmail@gmail.com"
-GMAIL_PASS = "<app password>"
+GMAIL_USER = "<example@gmail.com>"
+GMAIL_PASS = "<password"
+

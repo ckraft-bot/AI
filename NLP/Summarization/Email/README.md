@@ -7,8 +7,10 @@ Audience: C level suite managers
 - Use IMAP to reach my email inbox
 - Verify that the api got through by counting the unread emails
 - Parse unread emails from byes into raw utf8
-- Pass in the raw unread emails into OpenAI prompt
-- Ask chat gpt to summarize the emails 
+- Pass in the raw unread emails into LLM porpmpt of your choice
+    - Flag the call to action emails by bolding those details in the summary
+    - Sort summaries into categories
+    - Ask the LLM of your choice to summarize the emails into short paragrphs or sentences
 - Use SMTP to send the summary from myself to myself
 
 Count unread emails
