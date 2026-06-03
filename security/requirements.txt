@@ -1,0 +1,6 @@
+speechrecognition
+pyaudio
+opencv-python
+dlib-bin
+face_recognition
+imutils
