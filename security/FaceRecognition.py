@@ -1,48 +1,67 @@
-######################### Face Recognition #########################
-""" 
-Context: this purpose of this program will be to recognize faces. The outline will look like as follows:
-    1. Face detection- locating faces in the frame
-    2. Face alignment- normalize faces with the trianing database
-    3. Feature extraction- focusing on details of the face that will help with training and recognition tasks
-    4. Face recognition- matching faces against the datasets in the database
-Extra downloads:
-    - install Visual Studio for C++ for dlib
-Libraries needed:
-    - pip install dlib
-        Dlib is a modern C++ toolkit containing machine learning algorithms and tools for creating complex software in C++ to solve real world problems. 
-        It is used in both industry and academia in a wide range of domains including robotics, embedded devices, mobile phones, and large high performance computing environments. 
-        Dlib's open source licensing allows you to use it in any application, free of charge. (source: http://dlib.net/)
-    - pip install cmake
-        CMake is used to control the software compilation process using simple platform and compiler independent configuration files, 
-        and generate native makefiles and workspaces that can be used in the compiler environment of your choice. (source: https://pypi.org/project/cmake/)
-    - pip3 install face_recognition OR pip install face_recognition
-        Adam Geitgey created the face recogntion and made it open sourced. 
-        This library is used to recognize and manipulate faces from Python or from the command line. (source: https://www.adamgeitgey.com/)
-    - pip install opencv
-        For image pre processing. 
+"""
+FaceRecognition.py
+
+Current state: loads a reference image and previews its BGR vs RGB
+color representation as a preprocessing step.
+
+Planned pipeline:
+    1. Face detection  - locating faces in the frame
+    2. Face alignment  - normalize faces with the training database
+    3. Feature extraction - focusing on details of the face
+    4. Face recognition - matching faces against the database
 """
 
+import logging
+import sys
+from pathlib import Path
+
 import cv2
-import numpy as np
-from scipy.misc import face
 import face_recognition
 
-# Load the image of Bill Gates in BGR format
-Gates_img_bgr = face_recognition.load_image_file(r"<path>\BillGates.jpg")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-# Convert the BGR image to RGB format for accurate color display
-Gates_img_rgb = cv2.cvtColor(Gates_img_bgr, cv2.COLOR_BGR2RGB)
+# --- Configuration -------------------------------------------------------
 
-# Display the original BGR image
-cv2.imshow('BGR Image', Gates_img_bgr)
+IMAGE_PATH = Path(r"<path>\BillGates.jpg")
 
-# Display the RGB image
-cv2.imshow('RGB Image', Gates_img_rgb)
-
-# Wait indefinitely for a key press
-cv2.waitKey(0)
-
-# Reload the image of Bill Gates for face detection purposes
-Gates_img = face_recognition.load_image_file(r"<path>\BillGates.jpg")
+# -------------------------------------------------------------------------
 
 
+def load_image(path: Path) -> cv2.Mat:
+    """Load an image via face_recognition; exit with a clear message if missing."""
+    if not path.exists():
+        logger.error("Image not found: %s", path)
+        sys.exit(1)
+    return face_recognition.load_image_file(str(path))
+
+
+def display_bgr_and_rgb(image_bgr: cv2.Mat) -> None:
+    """
+    ######################### Face Recognition #########################
+    Show both the raw BGR image returned by face_recognition and its
+    correct RGB representation side-by-side so the color difference is
+    immediately visible.
+    """
+    image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+
+    cv2.imshow("BGR Image", image_bgr)
+    cv2.imshow("RGB Image", image_rgb)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def run() -> None:
+    """Load the reference image and kick off the display pipeline."""
+    logger.info("Loading image: %s", IMAGE_PATH)
+    image = load_image(IMAGE_PATH)
+
+    display_bgr_and_rgb(image)
+
+
+if __name__ == "__main__":
+    run()
